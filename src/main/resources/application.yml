@@ -1,1 +1,32 @@
-spring.application.name=memory-app
+server:
+  port: 8081  # ????????? 8081? ???????????
+
+spring:
+  application:
+    name = memory-app
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/memory_bottle?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  tomcat:
+    initSQL: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+
+  jpa:
+    hibernate:
+      ddl-auto: update    # ?????? none?????? update
+    show-sql: true         # ????? SQL
+
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+# ???????????????????
+file:
+  upload-dir: uploads/

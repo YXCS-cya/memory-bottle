@@ -1,0 +1,7 @@
+<type>(<scope>): <subject>
+
+[可选] 说明更改的动机、逻辑和背景（用完整句子描述）
+
+[可选] BREAKING CHANGE: 如果有破坏性更改说明在这里
+
+[可选] Closes #<issue-number>
