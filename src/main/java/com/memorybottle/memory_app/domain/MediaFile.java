@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "media_files")
 public class MediaFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

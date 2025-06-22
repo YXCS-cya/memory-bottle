@@ -8,6 +8,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Table(name = "memories")
 public class Memory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

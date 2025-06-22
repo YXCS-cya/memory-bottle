@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Data
+@Table(name = "timeline")
 public class TimelineEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

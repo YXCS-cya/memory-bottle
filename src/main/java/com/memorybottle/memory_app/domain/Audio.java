@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "audio")
 public class Audio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
