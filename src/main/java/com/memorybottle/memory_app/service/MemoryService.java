@@ -4,9 +4,11 @@ import com.memorybottle.memory_app.converter.MemoryConverter;
 import com.memorybottle.memory_app.domain.MediaFile;
 import com.memorybottle.memory_app.domain.MediaType;
 import com.memorybottle.memory_app.domain.Memory;
+import com.memorybottle.memory_app.domain.TimelineEvent;
 import com.memorybottle.memory_app.dto.MemoryDTO;
 import com.memorybottle.memory_app.repository.MediaFileRepository;
 import com.memorybottle.memory_app.repository.MemoryRepository;
+import com.memorybottle.memory_app.repository.TimelineRepository;
 import com.memorybottle.memory_app.vo.MemoryDetailVO;
 import com.memorybottle.memory_app.vo.MemoryVO;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +30,14 @@ public class MemoryService {
 
     private final MemoryRepository memoryRepository;
     private final MediaFileRepository mediaFileRepository;
+    private final TimelineRepository timelineRepository;
 
     //private final String UPLOAD_DIR = "uploads/media/";
     //直接使用上面的方式，会因为TomCat临时路径导致下面代码中创建目录失败。因此改用下面的方式
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/media/";
 
-    public Memory saveMemoryWithFiles(String title, String description, Integer userId, List<MultipartFile> files) throws IOException {
+    public Memory saveMemoryWithFiles(String title, String description, Integer userId, String eventDate,
+                                      List<MultipartFile> files) throws IOException {
         // 1. 构建 Memory 实体
         Memory memory = new Memory();
         memory.setTitle(title);
@@ -69,6 +74,12 @@ public class MemoryService {
 
             mediaFiles.add(mediaFile);
         }
+
+        TimelineEvent event = new TimelineEvent();
+        event.setMemory(savedMemory);
+        event.setEventDate(LocalDate.parse(eventDate)); // 确保格式为 yyyy-MM-dd
+        timelineRepository.save(event);
+
 
         mediaFileRepository.saveAll(mediaFiles);
         return savedMemory;
@@ -132,10 +143,23 @@ public class MemoryService {
     /*
      * 为了防止恶意注入，增加一个采用了DTO层的服务
      * */
+//    public Memory saveFromDto(MemoryDTO dto) {
+//        Memory memory = MemoryConverter.toEntity(dto);
+//        // 暂不处理 userId，也可加入 User 查找逻辑
+//        return memoryRepository.save(memory);
+//    }
     public Memory saveFromDto(MemoryDTO dto) {
         Memory memory = MemoryConverter.toEntity(dto);
-        // 暂不处理 userId，也可加入 User 查找逻辑
-        return memoryRepository.save(memory);
+        Memory saved = memoryRepository.save(memory);
+
+        // 创建 Timeline 记录
+        TimelineEvent event = new TimelineEvent();
+
+        event.setMemory(saved);
+        event.setEventDate(LocalDate.parse(dto.getEventDate()));
+        timelineRepository.save(event);
+
+        return saved;
     }
 
 }

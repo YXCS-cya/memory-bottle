@@ -26,10 +26,11 @@ public class MemoryController {
             @RequestParam String title,
             @RequestParam String description,
             @RequestParam(required = false) Integer userId,
+            @RequestParam("eventDate") String eventDate,
             @RequestParam("files") List<MultipartFile> files
     ) {
         try {
-            Memory memory = memoryService.saveMemoryWithFiles(title, description, userId, files);
+            Memory memory = memoryService.saveMemoryWithFiles(title, description, userId, eventDate, files);
             return ResponseEntity.ok("Memory uploaded successfully with ID: " + memory.getId());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
