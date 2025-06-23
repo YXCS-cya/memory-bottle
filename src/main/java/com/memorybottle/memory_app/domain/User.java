@@ -11,6 +11,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)//标记成自增主键
     private Integer id;
 
+    @Column(name = "name")
     private String name;
 
     private String relation;

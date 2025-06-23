@@ -1,14 +1,12 @@
 package com.memorybottle.memory_app.service;
 
 import com.memorybottle.memory_app.converter.MemoryConverter;
-import com.memorybottle.memory_app.domain.MediaFile;
-import com.memorybottle.memory_app.domain.MediaType;
-import com.memorybottle.memory_app.domain.Memory;
-import com.memorybottle.memory_app.domain.TimelineEvent;
+import com.memorybottle.memory_app.domain.*;
 import com.memorybottle.memory_app.dto.MemoryDTO;
 import com.memorybottle.memory_app.repository.MediaFileRepository;
 import com.memorybottle.memory_app.repository.MemoryRepository;
 import com.memorybottle.memory_app.repository.TimelineRepository;
+import com.memorybottle.memory_app.repository.UserRepository;
 import com.memorybottle.memory_app.vo.MemoryDetailVO;
 import com.memorybottle.memory_app.vo.MemoryVO;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,8 @@ public class MemoryService {
     private final MemoryRepository memoryRepository;
     private final MediaFileRepository mediaFileRepository;
     private final TimelineRepository timelineRepository;
+    private final UserRepository userRepository;
+
 
     //private final String UPLOAD_DIR = "uploads/media/";
     //直接使用上面的方式，会因为TomCat临时路径导致下面代码中创建目录失败。因此改用下面的方式
@@ -38,13 +38,19 @@ public class MemoryService {
 
     public Memory saveMemoryWithFiles(String title, String description, Integer userId, String eventDate,
                                       List<MultipartFile> files) throws IOException {
+        //System.out.println(eventDate);
         // 1. 构建 Memory 实体
         Memory memory = new Memory();
         memory.setTitle(title);
         memory.setDescription(description);
 
-        // 用户信息可以先设置为 null 或后期查询（简化处理）
-        // memory.setUser(...)
+        // 用户信息校验
+        if (userId != null) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("无效的用户ID"));
+            memory.setUser(user);
+        }
+
 
         Memory savedMemory = memoryRepository.save(memory);
 
@@ -85,10 +91,10 @@ public class MemoryService {
         return savedMemory;
     }
 
-    public Memory getMemoryById(Integer id) {
-        return memoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Memory not found with id: " + id));
-    }
+//    public Memory getMemoryById(Integer id) {
+//        return memoryRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Memory not found with id: " + id));
+//    }
 
     //分页查询接口 + VO响应封装
     public Page<MemoryVO> getMemoryPage(int page, int size) {
@@ -161,5 +167,38 @@ public class MemoryService {
 
         return saved;
     }
+
+    //权限判断模块
+    private void checkPermission(Integer userId, User contentOwner) {
+        // 如果没有用户信息，直接拒绝
+        if (userId == null || contentOwner == null) {
+            throw new RuntimeException("无效用户");
+        }
+        // 自己创建的或管理员才允许相关操作
+        //暂定为上传该 Memory 的用户本人，或是管理员，才可以删除或修改这条 Memory 或其评论
+        if (!userId.equals(contentOwner.getId())) {
+            boolean isAdmin = userRepository.findById(userId)
+                    .map(User::getIsAdmin)
+                    .orElse(false);
+
+            if (!isAdmin) {
+                throw new RuntimeException("权限不足，无法操作他人内容");
+            }
+        }
+    }
+
+
+    //DELETE服务
+    public void deleteMemory(Integer memoryId, Integer userId) {
+        Memory memory = memoryRepository.findById(memoryId)
+                .orElseThrow(() -> new RuntimeException("Memory 不存在"));
+
+        checkPermission(userId, memory.getUser());
+
+        memoryRepository.deleteById(memoryId);
+    }
+
+
+
 
 }

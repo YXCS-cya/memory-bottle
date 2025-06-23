@@ -11,7 +11,7 @@ public class TimelineConverter {
         TimelineVO vo = new TimelineVO();
         vo.setMemoryId(event.getMemory().getId());
         vo.setTitle(event.getMemory().getTitle());
-        vo.setEventDate(event.getEventDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        vo.setEventDate(event.getEventDate().format(DateTimeFormatter.ofPattern("yyyy-M-d")));
         return vo;
     }
 }

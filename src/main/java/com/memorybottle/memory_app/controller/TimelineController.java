@@ -1,5 +1,6 @@
 package com.memorybottle.memory_app.controller;
 
+import com.memorybottle.memory_app.common.Result;
 import com.memorybottle.memory_app.dto.TimelineDTO;
 import com.memorybottle.memory_app.service.TimelineService;
 import com.memorybottle.memory_app.vo.TimelineVO;
@@ -21,14 +22,15 @@ public class TimelineController {
     public ResponseEntity<?> addEvent(@RequestBody TimelineDTO dto) {
         try {
             timelineService.addTimeline(dto);
-            return ResponseEntity.ok("Timeline event added.");
+            return ResponseEntity.ok(Result.success("时间事件添加成功"));
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Add failed: " + e.getMessage());
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<TimelineVO>> getAllEvents() {
-        return ResponseEntity.ok(timelineService.getAllEvents());
+    public Result<List<TimelineVO>> getAllEvents() {
+        return Result.success(timelineService.getAllEvents());
+        //return ResponseEntity.ok(timelineService.getAllEvents());
     }
 }
