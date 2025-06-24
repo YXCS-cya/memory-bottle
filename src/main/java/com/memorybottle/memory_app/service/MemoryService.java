@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.memorybottle.memory_app.common.FileUploadUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +32,9 @@ public class MemoryService {
     private final MediaFileRepository mediaFileRepository;
     private final TimelineRepository timelineRepository;
     private final UserRepository userRepository;
-    //private final MemoryConverter memoryConverter;
+    private final FileUploadUtil fileUploadUtil;
 
+    //private final MemoryConverter memoryConverter;
 
     //private final String UPLOAD_DIR = "uploads/media/";
     //直接使用上面的方式，会因为TomCat临时路径导致下面代码中创建目录失败。因此改用下面的方式
@@ -40,19 +42,15 @@ public class MemoryService {
 
     public Memory saveMemoryWithFiles(String title, String description, Integer userId, String eventDate,
                                       List<MultipartFile> files) throws IOException {
-        //System.out.println(eventDate);
+        //登陆判断
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
+
         // 1. 构建 Memory 实体
         Memory memory = new Memory();
+        memory.setUser(user);
         memory.setTitle(title);
         memory.setDescription(description);
-
-        // 用户信息校验
-        if (userId != null) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("无效的用户ID"));
-            memory.setUser(user);
-        }
-
 
         Memory savedMemory = memoryRepository.save(memory);
 
@@ -63,18 +61,19 @@ public class MemoryService {
             if (file.isEmpty()) {
                 continue;
             }
-
-            String originalFilename = file.getOriginalFilename();
-            String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + originalFilename;
-
-            File dest = new File(filePath);
-            dest.getParentFile().mkdirs(); // 创建uploads/media目录
-            file.transferTo(dest);
-
-            // 判定媒体类型（后缀）
-            String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
-            MediaType mediaType = ext.matches("mp4|mov|avi") ? MediaType.VIDEO : MediaType.IMAGE;
-
+            //使用工具类解耦
+            String filePath = fileUploadUtil.save(file);
+            MediaType mediaType = fileUploadUtil.detectType(file.getOriginalFilename());
+//            String originalFilename = file.getOriginalFilename();
+//            String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + originalFilename;
+//
+//            File dest = new File(filePath);
+//            dest.getParentFile().mkdirs(); // 创建uploads/media目录
+//            file.transferTo(dest);
+//
+//            // 判定媒体类型（后缀）
+//            String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+//            MediaType mediaType = ext.matches("mp4|mov|avi") ? MediaType.VIDEO : MediaType.IMAGE;
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFileUrl("/" + filePath);
             mediaFile.setMediaType(mediaType);
@@ -82,12 +81,10 @@ public class MemoryService {
 
             mediaFiles.add(mediaFile);
         }
-
         TimelineEvent event = new TimelineEvent();
         event.setMemory(savedMemory);
         event.setEventDate(LocalDate.parse(eventDate)); // 确保格式为 yyyy-MM-dd
         timelineRepository.save(event);
-
 
         mediaFileRepository.saveAll(mediaFiles);
         return savedMemory;
@@ -203,10 +200,35 @@ public class MemoryService {
         memoryRepository.deleteById(memoryId);
     }
 
-    //辅助查找Memory
+    //强化的查找Memory服务
+    //包括分页、模糊查询、按时间查询等
     public Page<MemoryVO> searchMemories(String keyword, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Page<Memory> page = memoryRepository.searchMemories(keyword, startDate, endDate, pageable);
         return page.map(MemoryConverter::toVO);
+    }
+
+    public void updateMemory(Integer id, String description, List<MultipartFile> mediaList, Integer userId) throws IOException {
+        Memory memory = memoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Memory 不存在"));
+
+        checkPermission(userId, memory.getUser()); // 权限校验
+
+        if (description != null) {
+            memory.setDescription(description);
+        }
+
+        if (mediaList != null && !mediaList.isEmpty()) {
+            for (MultipartFile file : mediaList) {
+                String path = fileUploadUtil.save(file);
+                MediaFile mediaFile = new MediaFile();
+                mediaFile.setFileUrl(path);
+                mediaFile.setMediaType(file.getContentType().startsWith("video") ? MediaType.VIDEO : MediaType.IMAGE);
+                mediaFile.setMemory(memory);
+                memory.getMediaFiles().add(mediaFile); // 追加而不是覆盖
+            }
+        }
+
+        memoryRepository.save(memory);
     }
 
 

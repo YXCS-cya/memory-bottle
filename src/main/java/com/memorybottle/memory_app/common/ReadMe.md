@@ -4,3 +4,5 @@
 
 Result类对应成功结果，会返回数据
 而GlobalExceptionHandler存放全局异常处理
+
+FileUploadUtil用来处理媒体文件的上传

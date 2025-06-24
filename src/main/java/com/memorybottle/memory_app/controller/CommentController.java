@@ -19,9 +19,10 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<?> addComment(@RequestBody CommentDTO dto) {
+    public ResponseEntity<?> addComment(@RequestBody CommentDTO dto,
+                                        @RequestHeader("X-User-Id") Integer userId) {
         try {
-            commentService.addComment(dto);
+            commentService.addComment(dto, userId);
             return ResponseEntity.ok(Result.success("留言添加成功"));
         } catch (Exception e) {
             return ResponseEntity.status(400).body(Result.failure("添加失败：" + e.getMessage()));

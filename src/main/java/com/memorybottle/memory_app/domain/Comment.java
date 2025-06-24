@@ -15,6 +15,7 @@ public class Comment {
 
     private String userName;
 
+
     @Column(columnDefinition = "TEXT")
     private String content;
 

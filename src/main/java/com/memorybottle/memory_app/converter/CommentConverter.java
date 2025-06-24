@@ -8,7 +8,7 @@ public class CommentConverter {
 
     public static Comment toEntity(CommentDTO dto) {
         Comment comment = new Comment();
-        comment.setUserName(dto.getUserName());
+        //comment.setUserName(dto.getUserName());
         comment.setContent(dto.getContent());
         return comment;
     }

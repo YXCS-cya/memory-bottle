@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class MemoryController {
     public ResponseEntity<?> uploadMemory(
             @RequestParam String title,
             @RequestParam String description,
-            @RequestParam("X-User-Id") Integer userId,
+            @RequestHeader("X-User-Id") Integer userId, //从请求头里直接获得userId 模仿正式的登陆机制
             @RequestParam("eventDate") String eventDate,
             @RequestParam("files") List<MultipartFile> files
     ) {
@@ -96,7 +97,7 @@ public class MemoryController {
             return ResponseEntity.status(403).body("拒绝访问：" + e.getMessage());
         }
     }
-    //查询Memory
+    //查询Memory，支持分页、模糊查询、按日期查询
     @GetMapping
     public Result<?> searchMemories(@RequestParam(required = false) String keyword,
                                     @RequestParam(required = false)
@@ -108,6 +109,17 @@ public class MemoryController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         Page<MemoryVO> result = memoryService.searchMemories(keyword, startDate, endDate, pageable);
         return Result.success(result);
+    }
+
+    //更新接口，只允许作者或管理员更新
+    //可修改描述，可上传或替换媒体文件
+    @PutMapping("/{id}")
+    public Result<?> updateMemory(@PathVariable Integer id,
+                                  @RequestParam(required = false) String description,
+                                  @RequestParam(required = false) List<MultipartFile> mediaList,
+                                  @RequestHeader("X-User-Id") Integer userId) throws IOException {
+        memoryService.updateMemory(id, description, mediaList, userId);
+        return Result.success("修改Memory成功！");
     }
 
 

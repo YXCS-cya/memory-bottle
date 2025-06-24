@@ -12,6 +12,7 @@ import com.memorybottle.memory_app.vo.CommentVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,12 +25,18 @@ public class CommentService {
     private final UserRepository userRepository;
 
 
-    public void addComment(CommentDTO dto) {
-        Memory memory = memoryRepository.findById(dto.getMemoryId())
-                .orElseThrow(() -> new RuntimeException("Memory not found"));
+    public void addComment(CommentDTO dto, Integer userId) {
+        //添加评论时验证用户（从Header获取用户名）
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
-        Comment comment = CommentConverter.toEntity(dto);
-        comment.setMemory(memory);  // 设置外键关联
+        Comment comment = new Comment();
+        comment.setContent(dto.getContent());
+        comment.setMemory(memoryRepository.findById(dto.getMemoryId())// 设置外键关联
+                .orElseThrow(() -> new IllegalArgumentException("关联回忆不存在")));
+        comment.setUserName(user.getName());
+        comment.setCreatedTime(LocalDateTime.now());
+
         commentRepository.save(comment);
     }
 
