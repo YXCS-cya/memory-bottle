@@ -8,10 +8,15 @@ import com.memorybottle.memory_app.vo.MemoryDetailVO;
 import com.memorybottle.memory_app.vo.MemoryVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -56,14 +61,14 @@ public class MemoryController {
     }
 
 
-    //分页查询接口
-    @GetMapping
-    public ResponseEntity<?> getAllMemories(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<MemoryVO> voPage = memoryService.getMemoryPage(page, size);
-        return ResponseEntity.ok(Result.success(voPage));
-    }
+//    //分页查询接口，重构了一个更好的分页查询接口
+//    @GetMapping
+//    public ResponseEntity<?> getAllMemories(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        Page<MemoryVO> voPage = memoryService.getMemoryPage(page, size);
+//        return ResponseEntity.ok(Result.success(voPage));
+//    }
 
     /*
     * 为了防止恶意注入，增加一个采用了DTO层的POST方法
@@ -90,6 +95,19 @@ public class MemoryController {
         } catch (Exception e) {
             return ResponseEntity.status(403).body("拒绝访问：" + e.getMessage());
         }
+    }
+    //查询Memory
+    @GetMapping
+    public Result<?> searchMemories(@RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false)
+                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                    @RequestParam(required = false)
+                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        Page<MemoryVO> result = memoryService.searchMemories(keyword, startDate, endDate, pageable);
+        return Result.success(result);
     }
 
 

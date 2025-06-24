@@ -13,11 +13,14 @@ public class MemoryVO {
     private String description;
     private LocalDateTime createdTime;
 
-    private List<MediaItem> mediaList;
+    private List<MediaFileVO> mediaList;
 
-    @Data
-    public static class MediaItem {
-        private String fileUrl;
-        private MediaType mediaType;
-    }
+//重构成带查询的分页接口
+//    private List<MediaItem> mediaList;
+//
+//    @Data
+//    public static class MediaItem {
+//        private String fileUrl;
+//        private MediaType mediaType;
+//    }
 }

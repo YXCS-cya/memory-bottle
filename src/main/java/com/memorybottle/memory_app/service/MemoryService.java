@@ -12,6 +12,7 @@ import com.memorybottle.memory_app.vo.MemoryVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ public class MemoryService {
     private final MediaFileRepository mediaFileRepository;
     private final TimelineRepository timelineRepository;
     private final UserRepository userRepository;
+    //private final MemoryConverter memoryConverter;
 
 
     //private final String UPLOAD_DIR = "uploads/media/";
@@ -97,27 +99,28 @@ public class MemoryService {
 //    }
 
     //分页查询接口 + VO响应封装
-    public Page<MemoryVO> getMemoryPage(int page, int size) {
-        Page<Memory> memoryPage = memoryRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")));
-
-        return memoryPage.map(memory -> {
-            MemoryVO vo = new MemoryVO();
-            vo.setId(memory.getId());
-            vo.setTitle(memory.getTitle());
-            vo.setDescription(memory.getDescription());
-            vo.setCreatedTime(memory.getCreatedTime());
-
-            // 只展示一个封面图（首图）
-            List<MediaFile> mediaList = memory.getMediaFiles();
-            if (mediaList != null && !mediaList.isEmpty()) {
-                MemoryVO.MediaItem item = new MemoryVO.MediaItem();
-                item.setFileUrl(mediaList.get(0).getFileUrl());
-                item.setMediaType(mediaList.get(0).getMediaType());
-                vo.setMediaList(List.of(item));
-            }
-            return vo;
-        });
-    }
+    //重构了带查询功能的分页服务
+//    public Page<MemoryVO> getMemoryPage(int page, int size) {
+//        Page<Memory> memoryPage = memoryRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")));
+//
+//        return memoryPage.map(memory -> {
+//            MemoryVO vo = new MemoryVO();
+//            vo.setId(memory.getId());
+//            vo.setTitle(memory.getTitle());
+//            vo.setDescription(memory.getDescription());
+//            vo.setCreatedTime(memory.getCreatedTime());
+//
+//            // 只展示一个封面图（首图）
+//            List<MediaFile> mediaList = memory.getMediaFiles();
+//            if (mediaList != null && !mediaList.isEmpty()) {
+//                MemoryVO.MediaItem item = new MemoryVO.MediaItem();
+//                item.setFileUrl(mediaList.get(0).getFileUrl());
+//                item.setMediaType(mediaList.get(0).getMediaType());
+//                vo.setMediaList(List.of(item));
+//            }
+//            return vo;
+//        });
+//    }
 
     /*
     * 实际上是用VO层封装getMemoryById接口
@@ -154,19 +157,21 @@ public class MemoryService {
 //        // 暂不处理 userId，也可加入 User 查找逻辑
 //        return memoryRepository.save(memory);
 //    }
-    public Memory saveFromDto(MemoryDTO dto) {
-        Memory memory = MemoryConverter.toEntity(dto);
-        Memory saved = memoryRepository.save(memory);
 
-        // 创建 Timeline 记录
-        TimelineEvent event = new TimelineEvent();
-
-        event.setMemory(saved);
-        event.setEventDate(LocalDate.parse(dto.getEventDate()));
-        timelineRepository.save(event);
-
-        return saved;
-    }
+    //Json输入功能暂时关闭，这里的服务业也暂时关闭
+//    public Memory saveFromDto(MemoryDTO dto) {
+//        Memory memory = MemoryConverter.toEntity(dto);
+//        Memory saved = memoryRepository.save(memory);
+//
+//        // 创建 Timeline 记录
+//        TimelineEvent event = new TimelineEvent();
+//
+//        event.setMemory(saved);
+//        event.setEventDate(LocalDate.parse(dto.getEventDate()));
+//        timelineRepository.save(event);
+//
+//        return saved;
+//    }
 
     //权限判断模块
     private void checkPermission(Integer userId, User contentOwner) {
@@ -198,7 +203,11 @@ public class MemoryService {
         memoryRepository.deleteById(memoryId);
     }
 
-
+    //辅助查找Memory
+    public Page<MemoryVO> searchMemories(String keyword, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Page<Memory> page = memoryRepository.searchMemories(keyword, startDate, endDate, pageable);
+        return page.map(MemoryConverter::toVO);
+    }
 
 
 }
