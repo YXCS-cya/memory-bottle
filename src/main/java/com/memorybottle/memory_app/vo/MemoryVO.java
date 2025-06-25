@@ -3,6 +3,7 @@ package com.memorybottle.memory_app.vo;
 import com.memorybottle.memory_app.domain.MediaType;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,8 +12,10 @@ public class MemoryVO {
     private Integer id;
     private String title;
     private String description;
-    private LocalDateTime createdTime;
+    //private LocalDateTime createdTime;
     private String coverUrl;
+    private LocalDate eventDate;
+
 
 
     private List<MediaFileVO> mediaList;

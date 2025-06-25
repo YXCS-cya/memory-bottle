@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -134,6 +136,16 @@ public class MemoryService {
         vo.setDescription(memory.getDescription());
         vo.setCreatedTime(memory.getCreatedTime());
 
+        // ✅ 获取事件时间（从 TimelineEvent）
+        if (memory.getTimelineEvents() != null && !memory.getTimelineEvents().isEmpty()) {
+            // 获取最早的事件时间，或者改为最晚的，取决于需求
+            Optional<TimelineEvent> earliestEvent = memory.getTimelineEvents().stream()
+                    .min(Comparator.comparing(TimelineEvent::getEventDate));
+
+            earliestEvent.ifPresent(event -> vo.setEventDate(event.getEventDate())); // 设置事件时间
+        }
+
+        // 处理 MediaList
         List<MemoryDetailVO.MediaItem> mediaList = new ArrayList<>();
         if (memory.getMediaFiles() != null) {
             for (MediaFile media : memory.getMediaFiles()) {
@@ -147,6 +159,7 @@ public class MemoryService {
         vo.setMediaList(mediaList);
         return vo;
     }
+
 
     /*
      * 为了防止恶意注入，增加一个采用了DTO层的服务

@@ -39,7 +39,7 @@ public class MemoryConverter {
         vo.setId(memory.getId());
         vo.setTitle(memory.getTitle());
         vo.setDescription(memory.getDescription());
-        vo.setCreatedTime(memory.getCreatedTime());
+        //vo.setCreatedTime(memory.getCreatedTime());
 
         if (memory.getMediaFiles() != null) {
             List<MediaFileVO> mediaList = memory.getMediaFiles().stream()
@@ -66,6 +66,10 @@ public class MemoryConverter {
                         .findFirst()
                         .ifPresent(video -> vo.setCoverUrl(video.getFileUrl()));
             }
+        }
+        if (memory.getTimelineEvents() != null && !memory.getTimelineEvents().isEmpty()) {
+            // 示例：选第一个事件的 eventDate，可根据你需求改为最早/最晚
+            vo.setEventDate(memory.getTimelineEvents().get(0).getEventDate());
         }
 
         return vo;

@@ -26,4 +26,8 @@ public class Memory {
 
     @OneToMany(mappedBy = "memory", cascade = CascadeType.ALL)
     private List<MediaFile> mediaFiles;
+
+    @OneToMany(mappedBy = "memory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TimelineEvent> timelineEvents;
+
 }
