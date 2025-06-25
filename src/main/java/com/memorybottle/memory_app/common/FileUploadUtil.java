@@ -18,14 +18,15 @@ public class FileUploadUtil {
         }
 
         String originalFilename = file.getOriginalFilename();
-        String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + originalFilename;
+        String fileName = System.currentTimeMillis() + "_" + originalFilename;
+        String filePath = UPLOAD_DIR + fileName;
 
         File dest = new File(filePath);
         dest.getParentFile().mkdirs();
         file.transferTo(dest);
 
-        // 返回相对路径（供数据库保存）
-        return "/" + filePath;
+        // ✅ 返回逻辑路径
+        return "uploads/media/" + fileName;
     }
 
     public MediaType detectType(String filename) {
@@ -33,4 +34,5 @@ public class FileUploadUtil {
         return ext.matches("mp4|mov|avi") ? MediaType.VIDEO : MediaType.IMAGE;
     }
 }
+
 

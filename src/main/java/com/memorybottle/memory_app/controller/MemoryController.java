@@ -55,6 +55,7 @@ public class MemoryController {
         try {
             MemoryDetailVO vo = memoryService.getMemoryDetail(id);
             return ResponseEntity.ok(Result.success(vo));
+
             //return ResponseEntity.ok(vo);
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());

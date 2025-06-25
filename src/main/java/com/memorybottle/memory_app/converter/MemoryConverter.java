@@ -1,6 +1,7 @@
 package com.memorybottle.memory_app.converter;
 
 import com.memorybottle.memory_app.domain.MediaFile;
+import com.memorybottle.memory_app.domain.MediaType;
 import com.memorybottle.memory_app.domain.Memory;
 import com.memorybottle.memory_app.dto.MemoryDTO;
 import com.memorybottle.memory_app.vo.MediaFileVO;
@@ -8,6 +9,7 @@ import com.memorybottle.memory_app.vo.MemoryVO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MemoryConverter {
@@ -49,9 +51,25 @@ public class MemoryConverter {
                     })
                     .collect(Collectors.toList());
             vo.setMediaList(mediaList);
+
+            // ✅ 优先选择图片作为封面
+            Optional<MediaFile> imageCover = memory.getMediaFiles().stream()
+                    .filter(f -> f.getMediaType() == MediaType.IMAGE)
+                    .findFirst();
+
+            // ✅ 如果没有图片，回退使用视频作为封面
+            if (imageCover.isPresent()) {
+                vo.setCoverUrl(imageCover.get().getFileUrl());
+            } else {
+                memory.getMediaFiles().stream()
+                        .filter(f -> f.getMediaType() == MediaType.VIDEO)
+                        .findFirst()
+                        .ifPresent(video -> vo.setCoverUrl(video.getFileUrl()));
+            }
         }
 
         return vo;
     }
+
 
 }

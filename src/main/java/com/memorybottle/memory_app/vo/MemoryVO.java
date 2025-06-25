@@ -12,6 +12,8 @@ public class MemoryVO {
     private String title;
     private String description;
     private LocalDateTime createdTime;
+    private String coverUrl;
+
 
     private List<MediaFileVO> mediaList;
 

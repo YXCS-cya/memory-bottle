@@ -18,6 +18,7 @@ public class CommentConverter {
         vo.setUserName(comment.getUserName());
         vo.setContent(comment.getContent());
         vo.setCreatedTime(comment.getCreatedTime());
+        vo.setCommentId(comment.getId());
         return vo;
     }
 }

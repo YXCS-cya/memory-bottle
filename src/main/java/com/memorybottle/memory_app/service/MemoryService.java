@@ -38,7 +38,7 @@ public class MemoryService {
 
     //private final String UPLOAD_DIR = "uploads/media/";
     //直接使用上面的方式，会因为TomCat临时路径导致下面代码中创建目录失败。因此改用下面的方式
-    private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/media/";
+    //private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/media/";
 
     public Memory saveMemoryWithFiles(String title, String description, Integer userId, String eventDate,
                                       List<MultipartFile> files) throws IOException {
@@ -75,7 +75,9 @@ public class MemoryService {
 //            String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
 //            MediaType mediaType = ext.matches("mp4|mov|avi") ? MediaType.VIDEO : MediaType.IMAGE;
             MediaFile mediaFile = new MediaFile();
+            //服务器存储逻辑和这里无关
             mediaFile.setFileUrl("/" + filePath);
+            //mediaFile.setFileUrl(filePath);
             mediaFile.setMediaType(mediaType);
             mediaFile.setMemory(savedMemory);
 
@@ -221,10 +223,11 @@ public class MemoryService {
             for (MultipartFile file : mediaList) {
                 String path = fileUploadUtil.save(file);
                 MediaFile mediaFile = new MediaFile();
-                mediaFile.setFileUrl(path);
+                mediaFile.setFileUrl("/"+path);
                 mediaFile.setMediaType(file.getContentType().startsWith("video") ? MediaType.VIDEO : MediaType.IMAGE);
                 mediaFile.setMemory(memory);
-                memory.getMediaFiles().add(mediaFile); // 追加而不是覆盖
+                memory.getMediaFiles().add(mediaFile);
+                // 追加而不是覆盖
             }
         }
 
