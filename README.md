@@ -53,6 +53,16 @@ The frontend client (React + Vite) interacts with this backend through REST APIs
 
 ---
 
+## 🗂️ Media Storage & Access
+- Uploaded photos and videos are stored on the server under the Spring Boot `resources/static` directory,  
+  which is automatically exposed as a public resource path.
+- Each uploaded file is assigned a generated filename, and only its URL (e.g. `/media/<generated-name>.jpg`)  
+  is saved in the database instead of the binary content.
+- During upload, the backend concatenates the file path dynamically and returns the generated URL to the frontend,  
+  which renders it directly in the memory timeline or detail view.
+
+---
+
 ## 🧠 System Architecture
 
 ![System Architecture](./docs/media/architecture.png)
