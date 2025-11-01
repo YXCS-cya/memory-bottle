@@ -22,7 +22,7 @@ It follows a **layered architecture** with clear separation between controller, 
 
 The frontend client (React + Vite) interacts with this backend through REST APIs.
 
-> 🪶 *Frontend Repository:* [Memory Bottle (Frontend)](link-to-be-added-here)
+> 🪶 *Frontend Repository:* [Memory Bottle (Frontend)]([link-to-be-added-here](https://github.com/YXCS-cya/memory-bottle-frontend))
 
 ---
 
