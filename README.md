@@ -1,6 +1,7 @@
 # 🧠 Memory Bottle (Backend)
 
-> A Spring Boot–based backend service for personal memory archiving, supporting text & media uploads, timeline visualization, and comment interaction.
+> Spring Boot backend for "Memory Bottle": a memory archiving web service for families affected by memory loss and Alzheimer's. Supports timeline, media upload, and comment interaction.
+
 
 ---
 
