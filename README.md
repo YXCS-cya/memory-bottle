@@ -1,77 +1,188 @@
-# 🧠 Memory Bottle · 记忆时光瓶
+# 🧠 Memory Bottle (Backend)
 
-一个记录与珍藏回忆的平台，支持图文上传、时间轴展示、留言互动等功能。
-
-## ✨ 项目简介
-
-Memory Bottle 提供了结构清晰、权限可控的回忆存档系统，支持用户上传图文回忆、时间筛选与分页查看、回忆评论、自动生成时间轴等核心功能，适用于家庭记忆留存、亲情互动等应用场景。
-
-## ⚙️ 技术栈
-
-- Java 17
-- Spring Boot 3.x
-- Spring Data JPA + MySQL
-- RESTful API 设计
-- Multipart 文件上传
-- 前后端分离架构
-
-## 📁 项目结构
-
-```
-memory-bottle/
-├── controller 控制器层：对外接口
-├── service 服务层：业务逻辑处理
-├── repository 持久层：数据库访问
-├── domain 实体类：Memory、TimelineEvent 等
-├── dto / vo 数据传输对象 & 展示视图对象
-└── utils 工具类：如文件上传处理
-```
-
-## 🚀 核心功能
-
-- ✅ 上传回忆（含媒体文件）
-- ✅ 分页 + 关键字搜索
-- ✅ 按时间范围筛选
-- ✅ 时间轴事件展示（附封面图）
-- ✅ 评论功能（添加 / 查看 / 删除）
-- ✅ 接口身份识别与权限控制
-
-## 🧩 接口概览
-
-| 方法  | 路径                          | 功能                     |
-|-------|-------------------------------|--------------------------|
-| POST  | `/memories/upload`           | 上传回忆（含文件）        |
-| GET   | `/memories`                  | 获取回忆列表（含分页搜索） |
-| GET   | `/memories/{id}`             | 查看回忆详情              |
-| PUT   | `/memories/{id}`             | 更新回忆内容              |
-| DELETE| `/memories/{id}`             | 删除回忆                  |
-| POST  | `/comments`                  | 添加评论                  |
-| GET   | `/comments/{memoryId}`       | 获取评论列表              |
-| DELETE| `/comments/{commentId}`      | 删除评论                  |
-| GET   | `/timeline`                  | 获取全局时间轴            |
-
-📄 完整接口文档请见：[后端接口文档](./docs/记忆时光瓶_最终后端接口文档.md)
-
-## 🔐 权限与身份识别
-
-- 通过请求头 `X-User-Id` 注入当前用户身份
-- 核心操作接口需验证权限，服务端使用 `checkPermission(userId, ownerId)` 校验资源归属
-- 返回结构统一封装为 `Result<T>`，包含状态码、信息与数据内容
-
-## 📂 媒体与文件说明
-
-- 支持上传图片与视频文件
-- 自动识别媒体类型（`IMAGE` / `VIDEO`）
-- 媒体文件保存在本地 `/uploads/media/`
-- 时间轴封面自动优先显示图片，若无则取视频
-
-## 📦 运行环境
-
-- JDK 17+
-- Maven 3.8+
-- 本地或远程 MySQL 实例
-- 建议通过 Postman 或 Swagger 调试接口
+> A Spring Boot–based backend service for personal memory archiving, supporting text & media uploads, timeline visualization, and comment interaction.
 
 ---
 
-欢迎提交 Issue 或 Pull Request 进行交流与改进。
+## 🎯 Project Background
+
+With the aging of society, memory decline and Alzheimer’s disease have become increasingly common among the elderly.  
+For many older adults, past life experiences and family memories provide emotional comfort and self-identity.  
+**Memory Bottle** was therefore designed as a digital platform for preserving and revisiting personal memories —  
+a web-based system enabling families to archive text and media memories, supporting emotional connection and cognitive well-being.
+
+---
+
+## 🌟 Overview
+
+**Memory Bottle** is a full-stack web project designed to preserve personal memories in a structured and interactive way.  
+The backend provides a RESTful service built with **Spring Boot** and **MySQL**, offering endpoints for memory creation, timeline generation, media upload, and comment management.  
+It follows a **layered architecture** with clear separation between controller, service, and repository layers.
+
+The frontend client (React + Vite) interacts with this backend through REST APIs.
+
+> 🪶 *Frontend Repository:* [Memory Bottle (Frontend)](link-to-be-added-here)
+
+---
+
+## 🧩 Features
+
+- 📝 Create, update, and delete memory entries  
+- 🖼 Upload and manage images/videos for each memory  
+- 📅 Display memories on a timeline with cover previews  
+- 💬 Comment system for user interaction  
+- 🔐 Header-based user identity & permission control  
+- 📂 RESTful API design, tested via **Apifox**
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Technologies |
+|-------|---------------|
+| Backend Framework | Spring Boot 3.x |
+| Language | Java 17 |
+| Database | MySQL |
+| ORM | Spring Data JPA |
+| File Handling | Multipart upload + local storage |
+| Architecture | RESTful + Layered (Controller / Service / Repository) |
+| Testing | Apifox / Postman |
+
+---
+
+## 🧠 System Architecture
+
+![System Architecture](./docs/media/architecture.png)
+
+The system consists of three core layers:
+
+1. **Frontend (React SPA)** — handles user interface and API requests.  
+2. **Backend (Spring Boot)** — processes business logic, file storage, and permission validation.  
+3. **Database (MySQL)** — stores memories, comments, media metadata, and timeline events.
+
+---
+
+## 📁 Project Structure
+
+![Project Structure](./docs/media/project_structure.png)
+
+**Directory Layout**
+```
+memory-bottle/
+├─ controller/ # REST controllers (Memory, Comment, Timeline)
+├─ service/ # Business logic
+├─ repository/ # Data access layer
+├─ domain/ # Entity definitions (Memory, Comment, Media)
+├─ dto/ & vo/ # Data transfer and view objects
+└─ config/ # Global configuration
+```
+
+
+---
+
+## 🗄️ Database Design
+
+![Database Schema](./docs/media/db_structure.png)
+
+The database includes five primary entities:
+- **User** – stores user info and admin flag  
+- **Memory** – core table for text and metadata  
+- **Media_Files** – stores file URLs and media type  
+- **Comment** – user comments linked to a memory  
+- **Timeline** – maps events chronologically
+
+---
+
+## ⚙️ API Verification
+
+![API Test](./docs/media/api_test.png)
+
+All core endpoints have been tested using **Apifox**, including:
+- `/memories/upload`
+- `/memories`
+- `/comments`
+- `/timeline`
+
+---
+
+## 📆 Timeline API Example
+
+![Timeline API](./docs/media/timeline_api.png)
+
+The timeline endpoint returns simplified event objects:
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "data": [
+    {
+      "memoryId": 46,
+      "title": "Sample Event",
+      "eventDate": "2024-07-15",
+      "coverUrl": "/uploads/media/sample_image.jpg"
+    }
+  ]
+}
+```
+
+## 🔁 Unified Response Format
+
+All endpoints return a unified structure via the generic `Result<T>` class:
+![Result<T> Example](./docs/media/result_format.png)
+
+## 🧱 Service Mapping
+
+Each module corresponds to its own service layer:
+
+- MemoryController → MemoryService
+- TimelineController → TimelineService
+- CommentController → CommentService
+- LoginController → LoginService
+
+## 🧾 API Reference
+
+Full backend API specification can be found in:
+
+ [📄MemoryBottle_API_Documentation](docs/MemoryBottle_API_Documentation.md)
+
+ ## 🚀 How to Run
+1. Clone the repository
+```
+git clone https://github.com/YXCS-cya/memory-bottle.git
+cd memory-bottle
+```
+2. Configure database in application.yml
+```
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/memory_bottle
+    username: root
+    password: your_password
+```
+3. Run with Maven
+```
+mvn spring-boot:run
+```
+4. Access API
+- Default port: 8081
+- Base path: /memories, /comments, /timeline
+
+## 🔒 Permission Control
+
+- User identity injected via X-User-Id header
+- Permission validated with checkPermission(userId, ownerId)
+- Restricted endpoints: update, delete, comment delete
+
+## 🧩 Future Work
+- Integrate cloud-based media storage
+- Add authentication & user roles (JWT)
+- Deploy full-stack version online with React frontend
+---
+## 🛠 Build & Run Note
+
+This project can be compiled and executed directly from source using IntelliJ IDEA or any Java IDE.
+No external libraries are required. The server should be launched before running the client.
+Detailed setup instructions are provided above in "🚀 How to Run".
+
+
+> Designed and implemented independently as a full backend for the Memory Bottle system.
