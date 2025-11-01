@@ -6,11 +6,13 @@
 ---
 
 ## 🎯 Project Background
+Memory Bottle is a web-based system designed to preserve and revisit family memories —  
+supporting emotional connection and cognitive well-being among older adults.  
+While the frontend focuses on interactive storytelling and emotional design,  
+this backend project centers on **system architecture, data persistence, and secure media management**.
 
-With the aging of society, memory decline and Alzheimer’s disease have become increasingly common among the elderly.  
-For many older adults, past life experiences and family memories provide emotional comfort and self-identity.  
-**Memory Bottle** was therefore designed as a digital platform for preserving and revisiting personal memories —  
-a web-based system enabling families to archive text and media memories, supporting emotional connection and cognitive well-being.
+For a detailed overview of the user experience and UI design,please refer to the:
+> 🪶 *Frontend Repository:* [Memory Bottle (Frontend)](https://github.com/YXCS-cya/memory-bottle-frontend)
 
 ---
 
@@ -22,7 +24,7 @@ It follows a **layered architecture** with clear separation between controller, 
 
 The frontend client (React + Vite) interacts with this backend through REST APIs.
 
-> 🪶 *Frontend Repository:* [Memory Bottle (Frontend)](https://github.com/YXCS-cya/memory-bottle-frontend)
+
 
 ---
 
