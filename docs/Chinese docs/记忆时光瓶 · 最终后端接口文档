@@ -1,0 +1,64 @@
+# ✅ 记忆时光瓶项目 · 最终后端接口文档
+
+---
+
+## 🧠 Memory 回忆模块
+
+| 功能 | 方法 | 路径 | 参数简述 | 权限说明 |
+|------|------|------|----------|-----------|
+| 上传一条回忆（含媒体） | POST | `/memories/upload` | `title, description, eventDate, mediaList`<br>Header: `X-User-Id` | ✅ 登录用户，写入 userId |
+| 获取所有回忆（分页+搜索+时间筛选） | GET | `/memories` | `keyword, startDate, endDate, page, size` | ❌ 开放 |
+| 获取回忆详情 | GET | `/memories/{id}` | 无 | ❌ 开放 |
+| 更新回忆内容 | PUT | `/memories/{id}` | 可选 `description`、`mediaList`<br>Header: `X-User-Id` | ✅ 作者或管理员 |
+| 删除回忆 | DELETE | `/memories/{id}` | Header: `X-User-Id` | ✅ 作者或管理员 |
+
+---
+
+## 🕰️ Timeline 时间轴模块
+
+| 功能 | 方法 | 路径 | 参数 | 权限说明 |
+|------|------|------|-------|------------|
+| 添加时间轴事件（开发调试用） | POST | `/timeline/add` | `memoryId, eventDate`<br>Header: `X-User-Id` | ✅ 仅用于开发测试 |
+| 获取所有事件 | GET | `/timeline` | 无 | ❌ 开放（返回 memoryId、title、eventDate、coverUrl） |
+
+---
+
+## 💬 Comment 留言模块
+
+| 功能 | 方法 | 路径 | 参数 | 权限说明 |
+|------|------|------|--------|------------|
+| 添加评论 | POST | `/comments` | `memoryId, content`<br>Header: `X-User-Id` | ✅ 登录用户 |
+| 获取某条回忆的所有评论 | GET | `/comments/{memoryId}` | 无 | ❌ 开放 |
+| 删除评论 | DELETE | `/comments/{commentId}` | Header: `X-User-Id` | ✅ 作者或管理员 |
+
+---
+
+## 🔐 用户身份识别
+
+- 身份通过请求头 `X-User-Id` 注入
+- 所有需要权限控制的接口，使用 Service 层的 `checkPermission(userId, ownerId)` 实现权限判断
+- 所有接口统一返回结构 `Result<T>`，包含：
+  - `code`：状态码
+  - `message`：信息
+  - `data`：具体内容
+
+---
+
+## 🧩 媒体与封面展示说明
+
+- 所有上传媒体统一使用工具类 `FileUploadUtil` 保存至本地磁盘 `/uploads/media/`
+- 媒体类型自动识别为 `IMAGE` 或 `VIDEO`
+- 时间轴事件接口返回封面图 `coverUrl`，优先取图片，若无则选视频
+
+---
+## 权限控制与结构规范
+| 模块   | 特性说明                                              |
+| ---- | ------------------------------------------------- |
+| 身份识别 | 所有需登录接口统一通过 `X-User-Id` Header 注入                 |
+| 权限校验 | 删除/修改接口使用 `checkPermission(userId, ownerId)` 严格控制 |
+| 返回结构 | 所有接口统一封装 `Result<T>`，含 `code/message/data`        |
+| 媒体封面 | Timeline 接口自动附带 Memory 封面图                        |
+| 文件上传 | 封装为 `FileUploadUtil` 工具类，统一管理路径、类型识别              |
+
+---
+✅ 项目后端功能现已完成，支持完整的回忆存储、媒体上传、时间线展示与评论互动逻辑。
